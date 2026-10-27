@@ -9,14 +9,11 @@ import ThemeIcon from "./theme-icon";
 
 const navLinks = [
     { label: "Home", href: "/" },
-    { label: "Projects", href: "/projects" },
-    { label: "Gallery", href: "/gallery" },
     { label: "Blog", href: "/blog" },
 ];
 
 const secondaryLinks = [
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/dao-ho/" },
-    { label: "GitHub", href: "https://github.com/Dao-Ho" },
+    { label: "GitHub", href: "https://github.com/rocket-fuel86" },
 ];
 
 const fg = "var(--foreground-color)";

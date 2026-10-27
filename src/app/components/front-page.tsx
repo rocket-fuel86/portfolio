@@ -2,13 +2,21 @@
 import { motion } from "motion/react";
 import Cited from "./citation";
 import Container from "./container";
-import type { PondStats } from "./koi-pond/koi-pond";
 import { SOURCES } from "../data/sources";
 
+export type PondStats = {
+    koi?: number;
+    pellets?: number;
+    sharks?: number;
+    fish?: number;
+};
+
+export type FrontPageProps = {
+    stats?: PondStats;
+};
+
 const SOCIALS = [
-    { label: "github", href: "https://github.com/Dao-Ho" },
-    { label: "linkedin", href: "https://www.linkedin.com/in/dao-ho/" },
-    { label: "x", href: "https://x.com/daoho04" },
+    { label: "github", href: "https://github.com/rocket-fuel86" },
 ];
 
 const UNDERLINE =
@@ -44,20 +52,20 @@ const Socials = ({ className }: { className?: string }) => (
     </p>
 );
 
-const FrontPage = ({ stats }: { stats: PondStats }) => (
+const FrontPage = ({ stats }: FrontPageProps = {}) => (
     <>
         {mobilePage()}
         {desktopPage({ stats })}
     </>
 );
 
-const desktopPage = ({ stats }: { stats: PondStats }) => {
+const desktopPage = ({ stats }: FrontPageProps = {}) => {
     return (
         <Container
             as="header"
             className="relative flex h-full flex-col justify-end gap-10 max-lg:hidden bg-transparent pb-32 pt-32 text-foreground [@media(max-height:720px)]:gap-6 [@media(max-height:720px)]:pb-12 [@media(max-height:720px)]:pt-20"
         >
-            {stats.koi > 0 && (
+            {stats?.koi != null && stats.koi > 0 && (
                 <div
                     data-koi-avoid
                     aria-hidden="true"
@@ -91,18 +99,13 @@ const desktopPage = ({ stats }: { stats: PondStats }) => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
             >
-                <h1>Xin chào, I&apos;m Dao.</h1>
+                <h1>Hey there! I&apos;m Vlad.</h1>
                 <p>
-                    Software Engineer @ <Cited source="googleIncoming">Google</Cited>, passionate about building the
+                    Software Engineer student at ITStep College, passionate about building the
                     future.
                 </p>
                 <p>
-                    Before that, <Cited source="google">Google</Cited> (intern), <Cited source="agency">Agency</Cited>,
-                    and a few <Cited source="startups">early-stage startups</Cited>.
-                </p>
-                <p>
-                    Currently, building @ <Cited source="generate">Generate</Cited>, researching @{" "}
-                    <Cited source="parcs">PARCS Lab</Cited>.
+                    Currently, studying Python AI.
                 </p>
                 <Socials className="mt-[1.5vh]" />
             </motion.div>
