@@ -9,7 +9,6 @@ import ThemeIcon from "./theme-icon";
 
 const navLinks = [
     { label: "Home", href: "/" },
-    { label: "Blog", href: "/blog" },
 ];
 
 const secondaryLinks = [
@@ -36,7 +35,7 @@ export default function MobileNav() {
                     style={{ background: pillBg, backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
                 >
                     <span className="font-inter font-normal text-20 tracking-normal" style={{ color: fg }}>
-                        Dao Ho
+                        rocket-fuel86
                     </span>
                     <div className="relative" style={{ width: "5vw", height: "5vw" }}>
                         <AnimatePresence mode="wait">

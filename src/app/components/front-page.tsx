@@ -143,18 +143,13 @@ const mobilePage = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, delay: 0.2 }}
             >
-                <h1>Xin chào, I&apos;m Dao.</h1>
+                <h1>Hey there! I&apos;m Vlad.</h1>
                 <p>
-                    Software Engineer @ <MobileLink source="googleIncoming">Google</MobileLink>, passionate about
-                    building the future.
+                    Software Engineer student at ITStep College, passionate about building the
+                    future.
                 </p>
                 <p>
-                    Before that, <MobileLink source="google">Google</MobileLink> (intern),{" "}
-                    <MobileLink source="agency">Agency</MobileLink>, and a few early-stage startups.
-                </p>
-                <p>
-                    Currently, building @ <MobileLink source="generate">Generate</MobileLink>, researching @{" "}
-                    <MobileLink source="parcs">PARCS Lab</MobileLink>.
+                    Currently, studying Python AI.
                 </p>
                 <Socials className="mt-2" />
             </motion.div>
