@@ -24,8 +24,8 @@ export default {
         colors: {
             "light-foreground": "#262523",
             "light-background": "#f5f4f1",
-            "dark-foreground": "#fff7f0",
-            "dark-background": "#1a1917",
+            "dark-foreground": "#ffffff",
+            "dark-background": "#000000",
             "text-hover": "#3c7cff",
             background: "var(--background-color)",
             foreground: "var(--foreground-color)",

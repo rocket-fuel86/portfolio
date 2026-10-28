@@ -433,7 +433,7 @@ export class AsciiRenderer {
     const { width: W, height: H, dpr, cw, ch, theme } = this;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const isLight = theme === "light";
-    g.fillStyle = isLight ? "#f5f4f1" : "#1a1917";
+    g.fillStyle = isLight ? "#f5f4f1" : "#000000";
     g.fillRect(0, 0, W, H);
     const gridStroke = isLight ? "rgba(38,37,35,0.065)" : "rgba(255,255,255,0.055)";
     paintGrid(g, W, H, cw, ch, dpr, gridStroke);
@@ -890,7 +890,7 @@ export class AsciiRenderer {
         else if (flag === FLAG_MARK) color = `rgb(${Math.round(70 * tr)},${Math.round(70 * tg)},${Math.round(70 * tb)})`;
         else if (roll < 0.09) color = ACCENTS[key % ACCENTS.length];
         else if (roll < 0.13) color = "#ffffff";
-        else color = shade > 0.55 ? "#0e0f13" : "#1b1d24";
+        else color = shade > 0.55 ? "#000000" : "#111111";
         ctx.fillStyle = color;
         ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
       }

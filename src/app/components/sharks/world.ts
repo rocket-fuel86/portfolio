@@ -26,13 +26,17 @@ export type SharkSpec = { kind: SharkKind; size: number };
 // The landing hero: all 8 species represented across varying depths and sizes.
 const DEFAULT_SHARKS: SharkSpec[] = [
   { kind: "classic", size: 1 },
-  { kind: "greathammer", size: 0.95 },
-  { kind: "tiger", size: 0.91 },
-  { kind: "thresher", size: 0.87 },
-  { kind: "hammerhead", size: 0.83 },
-  { kind: "mako", size: 0.79 },
-  { kind: "nurse", size: 0.75 },
-  { kind: "zebra", size: 0.71 },
+  { kind: "classic", size: 0.7 },
+  { kind: "classic", size: 0.84 },
+  { kind: "classic", size: 0.77 },
+  // { kind: "classic", size: 1 },
+  // { kind: "greathammer", size: 0.95 },
+  // { kind: "tiger", size: 0.91 },
+  // { kind: "thresher", size: 0.87 },
+  // { kind: "hammerhead", size: 0.83 },
+  // { kind: "mako", size: 0.79 },
+  // { kind: "nurse", size: 0.75 },
+  // { kind: "zebra", size: 0.71 },
 ];
 
 export interface Fish {
