@@ -1,4 +1,4 @@
-import { AsciiRenderer } from "./renderer";
+import { AsciiRenderer, type SharkTheme } from "./renderer";
 import { World, type SharkSpec } from "./world";
 
 const STEP = 1 / 60;
@@ -18,13 +18,27 @@ export class OceanEngine {
   private reducedMotion: MediaQueryList;
   private resizeObserver: ResizeObserver;
   private intersectionObserver: IntersectionObserver;
+  private themeObserver?: MutationObserver;
   private disposed = false;
 
-  constructor(private canvas: HTMLCanvasElement, sharks?: SharkSpec[]) {
+  constructor(private canvas: HTMLCanvasElement, sharks?: SharkSpec[], theme?: SharkTheme) {
     this.world = new World(sharks);
-    this.renderer = new AsciiRenderer(canvas);
+    const initialTheme: SharkTheme =
+      theme ?? (typeof document !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light");
+    this.renderer = new AsciiRenderer(canvas, initialTheme);
     this.renderer.setFontFamily(getComputedStyle(canvas).fontFamily);
     this.reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    if (typeof MutationObserver !== "undefined") {
+      this.themeObserver = new MutationObserver(() => {
+        const isDark = document.documentElement.classList.contains("dark");
+        this.setTheme(isDark ? "dark" : "light");
+      });
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    }
 
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(canvas);
@@ -48,9 +62,15 @@ export class OceanEngine {
     this.schedule();
   }
 
+  setTheme(theme: SharkTheme) {
+    this.renderer.setTheme(theme);
+    if (this.reducedMotion.matches) this.drawStill();
+  }
+
   destroy() {
     this.disposed = true;
     cancelAnimationFrame(this.raf);
+    this.themeObserver?.disconnect();
     this.resizeObserver.disconnect();
     this.intersectionObserver.disconnect();
     this.reducedMotion.removeEventListener("change", this.onMotionPreference);

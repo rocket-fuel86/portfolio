@@ -83,32 +83,34 @@ const desktopPage = ({ stats }: FrontPageProps = {}) => {
                     </motion.div>
                 </div>
             )}
-            <motion.blockquote
-                data-koi-avoid
-                className="font-geistMono text-[14px] lowercase leading-relaxed tracking-[0.02em]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.6 }}
-                transition={{ duration: 0.4 }}
-            >
-                <QuoteLines />
-            </motion.blockquote>
-            <motion.div
-                data-koi-avoid
-                className="cited-prose max-w-[54rem] font-geistMono text-[15px] leading-[max(22px,3vh)]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-            >
-                <h1>Hey there! I&apos;m Vlad.</h1>
-                <p>
-                    Software Engineer student at ITStep Academy, passionate about building the
-                    future.
-                </p>
-                <p>
-                    Currently, studying Machine Learning.
-                </p>
-                <Socials className="mt-[1.5vh]" />
-            </motion.div>
+            <div className="w-fit max-w-[54rem] rounded-2xl p-6 sm:p-8 backdrop-blur-md bg-[color-mix(in_srgb,var(--background-color)_72%,transparent)] border border-[color-mix(in_srgb,var(--foreground-color)_8%,transparent)] shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex flex-col gap-8 [@media(max-height:720px)]:gap-5 [@media(max-height:720px)]:p-6 transition-colors duration-200">
+                <motion.blockquote
+                    data-koi-avoid
+                    className="font-geistMono text-[14px] lowercase leading-relaxed tracking-[0.02em]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.6 }}
+                    transition={{ duration: 0.4 }}
+                >
+                    <QuoteLines />
+                </motion.blockquote>
+                <motion.div
+                    data-koi-avoid
+                    className="cited-prose font-geistMono text-[15px] leading-[max(22px,3vh)]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                >
+                    <h1>Hey there! I&apos;m Vlad.</h1>
+                    <p>
+                        Software Engineer student at ITStep Academy, passionate about building the
+                        future.
+                    </p>
+                    <p>
+                        Currently, studying Machine Learning.
+                    </p>
+                    <Socials className="mt-[1.5vh]" />
+                </motion.div>
+            </div>
         </Container>
     );
 };
@@ -127,32 +129,34 @@ const mobilePage = () => {
             as="header"
             className="flex h-full flex-col justify-end gap-8 lg:hidden bg-transparent pb-12 pt-28 font-geistMono text-foreground [@media(max-height:640px)]:gap-5 [@media(max-height:640px)]:pb-8"
         >
-            <motion.blockquote
-                data-koi-avoid
-                className="text-[13px] lowercase leading-relaxed tracking-[0.02em]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.6 }}
-                transition={{ duration: 0.4 }}
-            >
-                <QuoteLines />
-            </motion.blockquote>
-            <motion.div
-                data-koi-avoid
-                className="flex flex-col gap-3 text-[14px] leading-[1.6]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-            >
-                <h1>Hey there! I&apos;m Vlad.</h1>
-                <p>
-                    Software Engineer student at ITStep Academy, passionate about building the
-                    future.
-                </p>
-                <p>
-                    Currently, studying Machine Learning.
-                </p>
-                <Socials className="mt-2" />
-            </motion.div>
+            <div className="w-full rounded-2xl p-5 backdrop-blur-md bg-[color-mix(in_srgb,var(--background-color)_72%,transparent)] border border-[color-mix(in_srgb,var(--foreground-color)_8%,transparent)] shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex flex-col gap-5 transition-colors duration-200">
+                <motion.blockquote
+                    data-koi-avoid
+                    className="text-[13px] lowercase leading-relaxed tracking-[0.02em]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.6 }}
+                    transition={{ duration: 0.4 }}
+                >
+                    <QuoteLines />
+                </motion.blockquote>
+                <motion.div
+                    data-koi-avoid
+                    className="flex flex-col gap-3 text-[14px] leading-[1.6]"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                >
+                    <h1>Hey there! I&apos;m Vlad.</h1>
+                    <p>
+                        Software Engineer student at ITStep Academy, passionate about building the
+                        future.
+                    </p>
+                    <p>
+                        Currently, studying Machine Learning.
+                    </p>
+                    <Socials className="mt-2" />
+                </motion.div>
+            </div>
         </Container>
     );
 };

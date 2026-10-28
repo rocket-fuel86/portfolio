@@ -12,16 +12,27 @@ import { SHARK_NODES, type Shark, type SharkKind, type World } from "./world";
 const ALPHA_LEVELS = 6;
 const FISH_ALPHAS = [0.28, 0.42, 0.58, 0.74, 0.9];
 
-// Dot colour classes: blue, green, red, pale; the last entry is the cyan wake.
-const DOT_RGB: [number, number, number][] = [
+export type SharkTheme = "light" | "dark";
+
+// Dot colour classes: blue, green, red, pale; the last entry is the cyan/cerulean wake.
+const DARK_DOT_RGB: [number, number, number][] = [
   [48, 52, 235],
   [52, 205, 60],
   [228, 50, 44],
   [190, 212, 255],
   [110, 230, 255],
 ];
+
+const LIGHT_DOT_RGB: [number, number, number][] = [
+  [30, 40, 190],
+  [25, 145, 45],
+  [195, 35, 30],
+  [70, 90, 130],
+  [0, 138, 196],
+];
+
 const DOT_BASE_ALPHA = [1, 1, 1, 1, 1];
-const WAKE = DOT_RGB.length - 1;
+const WAKE = DARK_DOT_RGB.length - 1;
 
 const ACCENTS = ["#e0892c", "#e03a32", "#b44ae0", "#33c8cc", "#3cb54a", "#3150e8", "#d9c14a"];
 
@@ -247,10 +258,18 @@ function inTriangle(
   return !(neg && pos);
 }
 
-/** Visible dark-grey cell grid, snapped to device pixels. Shared with the sidebar backdrop. */
-export function paintGrid(g: CanvasRenderingContext2D, W: number, H: number, cw: number, ch: number, dpr: number) {
+/** Visible cell grid, snapped to device pixels. Shared with the sidebar backdrop. */
+export function paintGrid(
+  g: CanvasRenderingContext2D,
+  W: number,
+  H: number,
+  cw: number,
+  ch: number,
+  dpr: number,
+  strokeStyle = "rgba(255,255,255,0.055)"
+) {
   g.setTransform(1, 0, 0, 1, 0, 0);
-  g.strokeStyle = "rgba(255,255,255,0.055)";
+  g.strokeStyle = strokeStyle;
   g.lineWidth = 1;
   g.beginPath();
   for (let c = 0; c <= Math.ceil(W / cw); c++) {
@@ -284,9 +303,10 @@ export class AsciiRenderer {
   private energy = new Float32Array(0);
   private energyTmp = new Float32Array(0);
   private heat = new Float32Array(0);
+  private theme: SharkTheme = "dark";
   private bucketOf = new Uint8Array(0);
   private bucketOrder = new Int32Array(0);
-  private bucketCounts = new Int32Array(DOT_RGB.length * ALPHA_LEVELS + 1);
+  private bucketCounts = new Int32Array(DARK_DOT_RGB.length * ALPHA_LEVELS + 1);
   private dotStyles: string[] = [];
 
   private sharkFlag = new Uint8Array(0);
@@ -315,21 +335,38 @@ export class AsciiRenderer {
   private frameId = 0;
   /** Fish cells bucketed by brightness, so each bucket is one fillStyle. */
   private fishBuckets: number[][] = FISH_ALPHAS.map(() => []);
-  private fishStyles = FISH_ALPHAS.map((a) => `rgba(230,238,255,${a})`);
+  private fishStyles: string[] = [];
 
-  constructor(private canvas: HTMLCanvasElement) {
+  constructor(private canvas: HTMLCanvasElement, theme: SharkTheme = "dark") {
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) throw new Error("2D canvas unavailable");
     this.ctx = ctx;
     this.bg = document.createElement("canvas");
+    this.theme = theme;
+    this.initColorStyles();
+  }
 
-    for (let c = 0; c < DOT_RGB.length; c++) {
-      const [r, g, b] = DOT_RGB[c];
+  private initColorStyles() {
+    const isLight = this.theme === "light";
+    const dotRgb = isLight ? LIGHT_DOT_RGB : DARK_DOT_RGB;
+    this.dotStyles = [];
+    for (let c = 0; c < dotRgb.length; c++) {
+      const [r, g, b] = dotRgb[c];
       for (let l = 0; l < ALPHA_LEVELS; l++) {
         const a = (DOT_BASE_ALPHA[c] * (l + 1)) / ALPHA_LEVELS;
         this.dotStyles.push(`rgba(${r},${g},${b},${a.toFixed(3)})`);
       }
     }
+    this.fishStyles = isLight
+      ? FISH_ALPHAS.map((a) => `rgba(38,37,35,${(a * 0.95).toFixed(3)})`)
+      : FISH_ALPHAS.map((a) => `rgba(230,238,255,${a.toFixed(3)})`);
+  }
+
+  setTheme(theme: SharkTheme) {
+    if (this.theme === theme) return;
+    this.theme = theme;
+    this.initColorStyles();
+    this.paintBackground();
   }
 
   get cellWidth() {
@@ -393,11 +430,13 @@ export class AsciiRenderer {
   private paintBackground() {
     const g = this.bg.getContext("2d");
     if (!g) return;
-    const { width: W, height: H, dpr, cw, ch } = this;
+    const { width: W, height: H, dpr, cw, ch, theme } = this;
     g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    g.fillStyle = "#000";
+    const isLight = theme === "light";
+    g.fillStyle = isLight ? "#f5f4f1" : "#1a1917";
     g.fillRect(0, 0, W, H);
-    paintGrid(g, W, H, cw, ch, dpr);
+    const gridStroke = isLight ? "rgba(38,37,35,0.065)" : "rgba(255,255,255,0.055)";
+    paintGrid(g, W, H, cw, ch, dpr, gridStroke);
   }
 
   render(world: World, dt: number) {
@@ -751,7 +790,8 @@ export class AsciiRenderer {
   }
 
   private drawSharks(t: number) {
-    const { ctx, cols, rows, cw, ch, sharkFlag, sharkShade, sharkKey, sharkDepth, sharkKind } = this;
+    const { ctx, cols, rows, cw, ch, sharkFlag, sharkShade, sharkKey, sharkDepth, sharkKind, theme } = this;
+    const isLight = theme === "light";
     const n = cols * rows;
     for (let i = 0; i < n; i++) {
       const flag = sharkFlag[i];
@@ -770,49 +810,90 @@ export class AsciiRenderer {
       const roll = hash3(key, tick, 7);
 
       if (flag === FLAG_EDGE) {
-        // Soft, anti-aliased silhouette: no block, just a light glyph.
+        // Soft, anti-aliased silhouette: no block, just a light/dark glyph.
         const set = shade >= 0.5 ? EDGE_HEAVY : EDGE_LIGHT;
-        const g = (70 + shade * 80) * dim;
-        ctx.fillStyle =
-          roll < 0.07
-            ? ACCENTS[key % ACCENTS.length]
-            : `rgb(${Math.round(g * tr)},${Math.round(g * tg)},${Math.min(255, Math.round(g * tb + 6))})`;
+        if (isLight) {
+          const delta = (60 + shade * 115) * dim;
+          const g = clamp(Math.round(245 - delta), 50, 215);
+          ctx.fillStyle =
+            roll < 0.07
+              ? ACCENTS[key % ACCENTS.length]
+              : `rgb(${Math.round(g * tr)},${Math.round(g * tg)},${Math.min(255, Math.round(g * tb))})`;
+        } else {
+          const g = (70 + shade * 80) * dim;
+          ctx.fillStyle =
+            roll < 0.07
+              ? ACCENTS[key % ACCENTS.length]
+              : `rgb(${Math.round(g * tr)},${Math.round(g * tg)},${Math.min(255, Math.round(g * tb + 6))})`;
+        }
         ctx.fillText(set[(key >>> 8) % set.length], x + cw / 2, y + ch / 2 + 1);
         continue;
       }
 
       let level: number;
       let glyph: string;
-      if (flag === FLAG_RIDGE) {
-        level = 226;
-        glyph = RIDGE_GLYPHS[(key >>> 8) % RIDGE_GLYPHS.length];
-      } else if (flag === FLAG_EYE) {
-        level = 12;
-        glyph = "o";
-      } else if (flag === FLAG_MARK) {
-        level = 24 + shade * 22;
-        glyph = MARK_GLYPHS[(key >>> 8) % MARK_GLYPHS.length];
-      } else if (flag === FLAG_FIN) {
-        level = 40 + shade * 120;
-        glyph = FIN_GLYPHS[(key >>> 8) % FIN_GLYPHS.length];
-      } else {
-        level = 46 + shade * 160;
-        const jitter = ((key >>> 4) % 3) - 1;
-        glyph = SKIN_RAMP[clamp(Math.floor((1 - shade) * 8.99) + jitter, 0, SKIN_RAMP.length - 1)];
-      }
-      level *= dim;
-      // Tinted per species; the classic tint is a cool blue-grey, like a back seen through deep water.
-      ctx.fillStyle = `rgb(${Math.min(255, Math.round(level * tr))},${Math.min(255, Math.round(level * tg))},${Math.min(255, Math.round(level * tb + 4))})`;
-      ctx.fillRect(x + 1, y + 1, cw - 1, ch - 1);
+      const jitter = ((key >>> 4) % 3) - 1;
 
-      let color: string;
-      if (flag === FLAG_EYE) color = "#9aa0ad";
-      else if (flag === FLAG_MARK) color = `rgb(${Math.round(70 * tr)},${Math.round(70 * tg)},${Math.round(70 * tb)})`;
-      else if (roll < 0.09) color = ACCENTS[key % ACCENTS.length];
-      else if (roll < 0.13) color = "#ffffff";
-      else color = shade > 0.55 ? "#0e0f13" : "#1b1d24";
-      ctx.fillStyle = color;
-      ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
+      if (isLight) {
+        if (flag === FLAG_RIDGE) {
+          level = 245 - 95 * dim;
+          glyph = RIDGE_GLYPHS[(key >>> 8) % RIDGE_GLYPHS.length];
+        } else if (flag === FLAG_EYE) {
+          level = 22;
+          glyph = "o";
+        } else if (flag === FLAG_MARK) {
+          level = 245 - (215 - shade * 15) * dim;
+          glyph = MARK_GLYPHS[(key >>> 8) % MARK_GLYPHS.length];
+        } else if (flag === FLAG_FIN) {
+          level = 245 - (190 - shade * 50) * dim;
+          glyph = FIN_GLYPHS[(key >>> 8) % FIN_GLYPHS.length];
+        } else {
+          level = 245 - (195 - shade * 65) * dim;
+          glyph = SKIN_RAMP[clamp(Math.floor(shade * 8.99) + jitter, 0, SKIN_RAMP.length - 1)];
+        }
+        ctx.fillStyle = `rgb(${Math.min(255, Math.round(level * tr))},${Math.min(255, Math.round(level * tg))},${Math.min(255, Math.round(level * tb + 4))})`;
+        ctx.fillRect(x + 1, y + 1, cw - 1, ch - 1);
+
+        let color: string;
+        if (flag === FLAG_EYE) color = "#ffffff";
+        else if (flag === FLAG_RIDGE) color = "#ffffff";
+        else if (flag === FLAG_MARK) color = `rgb(${Math.round(50 * tr)},${Math.round(50 * tg)},${Math.round(50 * tb)})`;
+        else if (roll < 0.09) color = ACCENTS[key % ACCENTS.length];
+        else if (roll < 0.13) color = "#ffffff";
+        else color = shade > 0.55 ? "#f5f4f1" : "#8e96a4";
+        ctx.fillStyle = color;
+        ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
+      } else {
+        if (flag === FLAG_RIDGE) {
+          level = 226;
+          glyph = RIDGE_GLYPHS[(key >>> 8) % RIDGE_GLYPHS.length];
+        } else if (flag === FLAG_EYE) {
+          level = 12;
+          glyph = "o";
+        } else if (flag === FLAG_MARK) {
+          level = 24 + shade * 22;
+          glyph = MARK_GLYPHS[(key >>> 8) % MARK_GLYPHS.length];
+        } else if (flag === FLAG_FIN) {
+          level = 40 + shade * 120;
+          glyph = FIN_GLYPHS[(key >>> 8) % FIN_GLYPHS.length];
+        } else {
+          level = 46 + shade * 160;
+          glyph = SKIN_RAMP[clamp(Math.floor((1 - shade) * 8.99) + jitter, 0, SKIN_RAMP.length - 1)];
+        }
+        level *= dim;
+        // Tinted per species; the classic tint is a cool blue-grey, like a back seen through deep water.
+        ctx.fillStyle = `rgb(${Math.min(255, Math.round(level * tr))},${Math.min(255, Math.round(level * tg))},${Math.min(255, Math.round(level * tb + 4))})`;
+        ctx.fillRect(x + 1, y + 1, cw - 1, ch - 1);
+
+        let color: string;
+        if (flag === FLAG_EYE) color = "#9aa0ad";
+        else if (flag === FLAG_MARK) color = `rgb(${Math.round(70 * tr)},${Math.round(70 * tg)},${Math.round(70 * tb)})`;
+        else if (roll < 0.09) color = ACCENTS[key % ACCENTS.length];
+        else if (roll < 0.13) color = "#ffffff";
+        else color = shade > 0.55 ? "#0e0f13" : "#1b1d24";
+        ctx.fillStyle = color;
+        ctx.fillText(glyph, x + cw / 2, y + ch / 2 + 1);
+      }
     }
   }
 
@@ -853,13 +934,18 @@ export class AsciiRenderer {
   }
 
   private drawHeat() {
-    const { ctx, heat, cols, cw, ch } = this;
+    const { ctx, heat, cols, cw, ch, theme } = this;
+    const isLight = theme === "light";
     for (let i = 0; i < heat.length; i++) {
       const h = heat[i];
       if (h < 0.08) continue;
       const col = i % cols;
       const row = (i / cols) | 0;
-      ctx.fillStyle = h > 0.5 ? `rgba(255,120,60,${h.toFixed(2)})` : `rgba(220,40,40,${(h * 1.6).toFixed(2)})`;
+      if (isLight) {
+        ctx.fillStyle = h > 0.5 ? `rgba(220,60,20,${h.toFixed(2)})` : `rgba(180,20,20,${(h * 1.6).toFixed(2)})`;
+      } else {
+        ctx.fillStyle = h > 0.5 ? `rgba(255,120,60,${h.toFixed(2)})` : `rgba(220,40,40,${(h * 1.6).toFixed(2)})`;
+      }
       ctx.fillText(h > 0.6 ? "*" : "·", col * cw + cw / 2, row * ch + ch / 2 + 1);
     }
   }
