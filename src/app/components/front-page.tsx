@@ -101,11 +101,11 @@ const desktopPage = ({ stats }: FrontPageProps = {}) => {
             >
                 <h1>Hey there! I&apos;m Vlad.</h1>
                 <p>
-                    Software Engineer student at ITStep College, passionate about building the
+                    Software Engineer student at ITStep Academy, passionate about building the
                     future.
                 </p>
                 <p>
-                    Currently, studying Python AI.
+                    Currently, studying Machine Learning.
                 </p>
                 <Socials className="mt-[1.5vh]" />
             </motion.div>
@@ -145,11 +145,11 @@ const mobilePage = () => {
             >
                 <h1>Hey there! I&apos;m Vlad.</h1>
                 <p>
-                    Software Engineer student at ITStep College, passionate about building the
+                    Software Engineer student at ITStep Academy, passionate about building the
                     future.
                 </p>
                 <p>
-                    Currently, studying Python AI.
+                    Currently, studying Machine Learning.
                 </p>
                 <Socials className="mt-2" />
             </motion.div>
